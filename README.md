@@ -90,6 +90,7 @@ DB_PASSWORD=wuzapi
 DB_NAME=wuzapi
 DB_HOST=localhost
 DB_PORT=5432
+DB_SSLMODE=false
 TZ=America/New_York
 WEBHOOK_FORMAT=json # or "form" for the default
 SESSION_DEVICE_NAME=WuzAPI
@@ -101,22 +102,37 @@ WUZAPI_ADMIN_TOKEN=your_admin_token_here
 TZ=America/New_York
 ```
 
-Key configuration options:
+### RabbitMQ Integration
+WuzAPI supports sending WhatsApp events to a RabbitMQ queue for global event distribution. When enabled, all WhatsApp events will be published to the specified queue regardless of individual user webhook configurations.
+
+Set these environment variables to enable RabbitMQ integration:
+
+```
+RABBITMQ_URL=amqp://guest:guest@localhost:5672
+RABBITMQ_QUEUE=whatsapp  # Optional (default: whatsapp_events)
+```
+
+When enabled:
+
+* All WhatsApp events (messages, presence updates, etc.) will be published to the configured queue regardless of event subscritions for regular webhooks
+* Events will include the userId and instanceName
+* This works alongside webhook configurations - events will be sent to both RabbitMQ and any configured webhooks
+* The integration is global and affects all instances
+
+#### Key configuration options:
 
 * WUZAPI_ADMIN_TOKEN: Required - Authentication token for admin endpoints
 * TZ: Optional - Timezone for server operations (default: UTC)
 * PostgreSQL-specific options: Only required when using PostgreSQL backend
+* RabbitMQ options: Optional, only required if you want to publish events to RabbitMQ
 
 ## Usage
 
 To interact with the API, you must include the `Authorization` header in HTTP requests, containing the user's authentication token. You can have multiple users (different WhatsApp numbers) on the same server.  
 
-* Uma referência da API Swagger em [/api](/api)
-* Uma página web de exemplo para conectar e escanear códigos QR em [/login](/login) (onde você precisará passar ?token=seu_token_aqui)
-
-A Swagger API reference at [/api](/api)
-
-A sample web page to connect and scan QR codes at [/login](/login)
+* A Swagger API reference at [/api](/api)
+* A sample web page to connect and scan QR codes at [/login](/login)
+* A fully featured Dashboard to create, manage and test instances at [/dashboard](dashboard)
 
 ## ADMIN Actions
 
@@ -215,13 +231,6 @@ Check the [API Reference](https://github.com/asternic/wuzapi/blob/main/API.md)
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/leonardonerypro>
-            <img src=https://avatars.githubusercontent.com/u/146673918?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=leonardonerypro/>
-            <br />
-            <sub style="font-size:14px"><b>leonardonerypro</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/pedroafonso18>
             <img src=https://avatars.githubusercontent.com/u/157052926?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Pedro Afonso/>
             <br />
@@ -235,6 +244,13 @@ Check the [API Reference](https://github.com/asternic/wuzapi/blob/main/API.md)
             <sub style="font-size:14px"><b>Ruan Kaylo</b></sub>
         </a>
     </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/luizrgf2>
+            <img src=https://avatars.githubusercontent.com/u/71092163?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Luiz Ricardo Gonçalves Felipe/>
+            <br />
+            <sub style="font-size:14px"><b>Luiz Ricardo Gonçalves Felipe</b></sub>
+        </a>
+    </td>
 </tr>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -242,6 +258,20 @@ Check the [API Reference](https://github.com/asternic/wuzapi/blob/main/API.md)
             <img src=https://avatars.githubusercontent.com/u/976438?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=andreydruz/>
             <br />
             <sub style="font-size:14px"><b>andreydruz</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/joaosouz4dev>
+            <img src=https://avatars.githubusercontent.com/u/47183663?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=João Victor Souza/>
+            <br />
+            <sub style="font-size:14px"><b>João Victor Souza</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/gusnips>
+            <img src=https://avatars.githubusercontent.com/u/981265?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gustavo Salomé />
+            <br />
+            <sub style="font-size:14px"><b>Gustavo Salomé </b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -265,6 +295,8 @@ Check the [API Reference](https://github.com/asternic/wuzapi/blob/main/API.md)
             <sub style="font-size:14px"><b>Fadlul Alim</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/ruben18salazar3>
             <img src=https://avatars.githubusercontent.com/u/86245508?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Rubén Salazar/>
@@ -279,8 +311,13 @@ Check the [API Reference](https://github.com/asternic/wuzapi/blob/main/API.md)
             <sub style="font-size:14px"><b>Ryan Achdiadsyah</b></sub>
         </a>
     </td>
-</tr>
-<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/ViFigueiredo>
+            <img src=https://avatars.githubusercontent.com/u/67883343?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=ViFigueiredo/>
+            <br />
+            <sub style="font-size:14px"><b>ViFigueiredo</b></sub>
+        </a>
+    </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/cadao7>
             <img src=https://avatars.githubusercontent.com/u/306330?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Ricardo Maminhak/>
@@ -298,6 +335,9 @@ Check the [API Reference](https://github.com/asternic/wuzapi/blob/main/API.md)
 </tr>
 </table>
 
+## Clients
+
+- [wuzapi TypeScript / Node Client](https://github.com/gusnips/wuzapi-node)
 
 ## Star History
 
